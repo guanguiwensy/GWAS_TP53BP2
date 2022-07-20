@@ -4,19 +4,10 @@ This study aims to find out the genetic factors that affect the HBsAg loss under
 and provide the evidence for improving the cure rate of chronic hepatitis B (CHB) patients. The analysis includes mapping, variant calling, SNP quality control, 
 association analysis, eQTL and transcriptome analysis and can be found in the corresponding folders respectively
 
-## 
-
-```
-```
-
-## Usage
-
-```
-```
 
 ## Contributing
 
-PRs accepted.
+Guiwen Guan and Changyu Tao.
 
 ## License
 
