@@ -8,7 +8,3 @@ association analysis, eQTL and transcriptome analysis and can be found in the co
 ## Contributing
 
 Guiwen Guan and Changyu Tao.
-
-## License
-
-MIT © Richard McRichface
