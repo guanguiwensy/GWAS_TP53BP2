@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #Mapping
-#$ref means bwa reference index; $i means sample ID; $k means lane ID
+#$ref means bwa reference index; $i means sample ID; $k means lane ID; $t means threads
 
 ref=$3
+t=$4
 
 for i in $(seq $1 $2)
 do
@@ -17,7 +18,7 @@ do
                 arr=($id)
                 fq1=${arr[0]}
                 fq2=${arr[1]}
-                bwa mem -t 42 -M -R "@RG\tID:S$i_$k\tSM:S$i\tLB:WGS\tPL:Illumina" $ref $fq1 $fq2 >${fq1}.sam
+                bwa mem -t $t -M -R "@RG\tID:S$i_$k\tSM:S$i\tLB:WGS\tPL:Illumina" $ref $fq1 $fq2 >${fq1}.sam
                 gatk --java-options "-Xmx60G -Djava.io.tmpdir=./"  SortSam --MAX_RECORDS_IN_RAM 20000000 -SO coordinate -I ${fq1}.sam -O /home/guanguiwen/data2/${fq1}.bam
                 rm ${fq1}.sam
     k=$((k+1))
@@ -30,6 +31,8 @@ done
 
 i=*.merge.marked.bam
 
-freebayes-parallel <(fasta_generate_regions.py /home/guanguiwen/data1/reference/human/hg38/Homo_sapiens_assembly38.fasta.fai 100000) 22 \
+freebayes-parallel <(fasta_generate_regions.py /home/guanguiwen/data1/reference/human/hg38/Homo_sapiens_assembly38.fasta.fai 100000) $t \
 -f /home/guanguiwen/data1/reference/human/hg38/Homo_sapiens_assembly38.fasta $i >/home/guanguiwen/data2/merge.vcf
+
+bcftools index merge.vcf
 
