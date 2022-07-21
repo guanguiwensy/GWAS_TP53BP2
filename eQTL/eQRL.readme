@@ -1,0 +1,7 @@
+We downloded GTEx v7 hg19 data, then transform to hg38 and picked up SNPs which was significant in GWAS stage by using 'GTEx_v7_merge_GWAS.sh'.
+Then we plotted the eQTL_GWAS_PPplot (Fig 2A) using 'eQTL_GWAS_PPplot.R'.
+
+We plotted Figure 2D by using locusZoom, and the data was prepaired using 'eQTL_locusZoom_data_prepair.R'.
+
+We plotted Figure 2D and Figure 2E by using UCSC genome brower, and the sig.SNP item was added by using 'sig.SNP.chr1_223.72_223.92.R'.
+
