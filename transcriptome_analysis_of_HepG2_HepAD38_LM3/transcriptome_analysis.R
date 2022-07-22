@@ -9,7 +9,7 @@ library(factoextra)
 
 foldChange=log2(2)
 padj=0.05
-========================================================================================
+--------------------------------------------------------------------------------
 ###data prepaired
 
 #HepG2
@@ -90,7 +90,7 @@ newData=y$pseudo.counts
 
 Type_I_interferon_pathway_genes <- read.table("Type_I_interferon_pathway_genes.txt",header = F, sep = "\t")
 
-df <- newData[Type_I_interferon_pathway_genes),]
+df <- newData[Type_I_interferon_pathway_genes,]
 
 col <- colorRampPalette(c("blue", "white", "red"))(256)
 patient_class=RowSideColors =  c(rep("purple", 3), rep("orange", 3))
@@ -198,7 +198,7 @@ all_lm3 <- read.table("lm3.normalized.csv",
 rownames(all_lm3) <- all_lm3[,1] 
 all_lm3 <- all_lm3[,-1]
 
-========================================================================================
+--------------------------------------------------------------------------------
 ###venn plot
 
 gene_logFC <- function(diff,foldChange,TP53BP2_DOWN){
@@ -255,7 +255,7 @@ pdf(file="venn.pdf")
 grid.draw(venn.plot)
 dev.off()
 
-========================================================================================
+--------------------------------------------------------------------------------
 ###heatmap for intersect different expression genes
 
 
