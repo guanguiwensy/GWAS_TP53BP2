@@ -55,5 +55,6 @@ freebayes-parallel <(fasta_generate_regions.py $fai --chunks 100) $threads \
 -l --use-best-n-alleles 3 $sample\
 >merge.vcf
 
-bgzip -@ $threads merge.vcf && bcftools index -t --threads $threads merge.vcf.gz;done
+bgzip -@ $threads merge.vcf
+bcftools index -t --threads $threads merge.vcf.gz
 
