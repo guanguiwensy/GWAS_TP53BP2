@@ -17,7 +17,7 @@ while getopts 'h:t:i:v:f:a:' OPT;do
 	a) fai="$OPTARG";;
 	h) func;;
 	?) func;;
-	esac
+    esac
 done
 
 for i in $(seq 1 105)
