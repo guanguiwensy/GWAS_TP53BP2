@@ -20,7 +20,7 @@ while getopts 'h:t:i:v:f:a:' OPT;do
 	esac
 done
 
-for i in $(seq $1 $2)
+for i in $(seq 1 105)
 do
   echo $i
         ls S${i}.*1.fq.gz >1
