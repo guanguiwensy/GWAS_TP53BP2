@@ -48,11 +48,11 @@ done
 
 #Variant calling
 
-i=*.merge.marked.bam
+sample=*.merge.marked.bam
 
 freebayes-parallel <(fasta_generate_regions.py $fai --chunks 100) $threads \
 -g 20000 -f $fasta --min-base-quality 20 --min-mapping-quality 10 -@ $vcf \
--l --use-best-n-alleles 3 $i\
+-l --use-best-n-alleles 3 $sample\
 >merge.vcf
 
 bgzip -@ $threads merge.vcf && bcftools index -t --threads $threads merge.vcf.gz;done
