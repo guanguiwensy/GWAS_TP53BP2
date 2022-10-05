@@ -20,7 +20,7 @@ gtex$gene_id_1 <-  substr(gtex[,2],1,15)
 
 gtex <- merge(gtex,proteincoding,by.x = "gene_id_1",by.y = "Gene.stable.ID")
 
-gwas_0.0001 <- read.table("results_as_0.0001.txt",header = T, sep = " ")
+gwas_0.0001 <- read.table("results_as_0.0001.txt",header = T, sep = "\t")
 
 gwas_0.0001$hg38id <- paste("chr",gwas_0.0001[,1],":",gwas_0.0001[,3],"_",gwas_0.0001[,7],"_",gwas_0.0001[,4],sep="")
 
@@ -36,18 +36,20 @@ gwas_eQTL_merge <- gwas_eQTL_merge %>% mutate(abs_clour=case_when(slope > 0 ~ "r
 
 gwas_eQTL_merge <- gwas_eQTL_merge %>% mutate(highlight=case_when(abs(slope) > 0.15 ~ paste(SNP,":",Gene.name,sep=""),TRUE ~ ""))
 
-pdf("eQTL_GWAS_PPplot.pdf")
-plot <- ggplot(gwas_eQTL_merge, aes(x = -log10(P), y = -log10(pval_nominal))) +
+write.table(gwas_eQTL_merge,"gwas_eQTL_merge.txt",row.names = F,quote = F)
+
+pdf("eQTL_GWAS_PPplot.pdf",width=7,height=6)
+ggplot(gwas_eQTL_merge, aes(x = -log10(P), y = -log10(pval_nominal))) +
                geom_point(data = gwas_eQTL_merge[which(gwas_eQTL_merge$Gene.name != "TP53BP2"),],
                           aes(color = I("skyblue"),
                               size = abs(slope), 
-                              alpha = 0.9))+
+                              alpha = 1))+
                geom_point(data = gwas_eQTL_merge[which(gwas_eQTL_merge$Gene.name == "TP53BP2"),],
                           aes(x = -log10(P),
                               y = -log10(pval_nominal),
                               color=I("red"),
                               size=abs(slope),
-                              alpha = 0.9))+
+                              alpha = 1))+
                geom_text_repel(aes(label = highlight),
                                size = 3,
                                min.segment.length = 0, 
@@ -58,4 +60,5 @@ plot <- ggplot(gwas_eQTL_merge, aes(x = -log10(P), y = -log10(pval_nominal))) +
                                nudge_x = .15,
                                nudge_y = .5,
                                color = "grey50"
-               )
+)
+dev.off()

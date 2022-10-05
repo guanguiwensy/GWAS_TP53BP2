@@ -6,7 +6,7 @@ rs7519753_2000000_pos <- paste("chr",rs7519753_2000000[,1],":",rs7519753_2000000
 
 write.table(rs7519753_2000000_pos,"rs7519753_2000000_pos.txt",row.names = F,col.names = F,quote = F)
 
-rs7519753_2000000_eQTL <- read.table("Liver.allpairs.txt.hg38.prepaired.txt.0.0001.txt",header=T,sep = "")
+rs7519753_2000000_eQTL <- read.table("Liver.allpairs.txt.hg38.prepaired.rs7519753_2000000.txt",header=T,sep = "")
 
 rs7519753_2000000_eQTL <- rs7519753_2000000_eQTL %>% mutate(CHR = t(data.frame(strsplit(chr.pos,split = ":")))[,1],
                                                             BP = t(data.frame(strsplit(chr.pos,split = ":")))[,2],
@@ -20,4 +20,4 @@ rs7519753_2000000_eQTL <- rs7519753_2000000_eQTL[which(rs7519753_2000000_eQTL$ge
 
 rs7519753_2000000_eQTL_plink_format <- rs7519753_2000000_eQTL[,c(11:16)]
 
-write.table(rs7519753_2000000_eQTL_plink_format,"rs7519753_2000000_eQTL_plink_format.txt",row.names = F,col.names = T,sep = " ",quote = F)
+write.table(rs7519753_2000000_eQTL_plink_format,"rs7519753_2000000_eQTL_plink_format.txt",row.names = F,col.names = T,sep = "\t",quote = F)

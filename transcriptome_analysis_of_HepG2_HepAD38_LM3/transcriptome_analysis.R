@@ -6,15 +6,15 @@ library(stringr)
 library(pheatmap)
 library(gridExtra)
 library(factoextra)
+library(tidyverse)
 
-foldChange=log2(2)
+foldChange=log2(1.5)
 padj=0.05
---------------------------------------------------------------------------------
 ###data prepaired
 
 #HepG2
 
-rt <- read.table("symbol.protein_coding.hepg2.csv",
+rt <- read.table("symbol.protein_coding.hepg2.txt",
                     sep="\t",header=T,check.names=F)
 
 species="hsa"
@@ -32,7 +32,7 @@ all <- rt
 
 #HepG2 siNC_siTP53BP2
 
-rt <- all[,c(1,2,3,10,11,12)]
+rt <- all[,c(1,2,3,7,8,9)]
 
 rt=as.matrix(rt)
 exp=rt
@@ -54,12 +54,18 @@ allDiff=ordered_tags$table
 allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
 diff=allDiff
 
-diffSig_g2_siNC_siTP53BP2 = diff[(diff$FDR < padj & (diff$logFC>foldChange | 
+diff_g2_siNC_siTP53BP2 <- diff[,c(1,3,4)]
+
+diff_g2_siNC_siTP53BP2[,4] <- rownames(diff_g2_siNC_siTP53BP2)
+
+diffSig_g2_siNC_siTP53BP2 <-  diff[(diff$FDR < padj & (diff$logFC>foldChange | 
                                                        diff$logFC<(-foldChange))),]
+
+write.csv(diffSig_g2_siNC_siTP53BP2,"diffSig_g2_siNC_siTP53BP2.csv")
 
 #HepG2 siNC_siTP53BP2_1h
 
-rt <- all[,c(4,5,6,13,14,15)]
+rt <- all[setdiff(rownames(all),rownames(diffSig_g2_siNC_siTP53BP2)),c(4,5,6,10,11,12)]
 
 rt=as.matrix(rt)
 exp=rt
@@ -77,18 +83,26 @@ y <- estimateTagwiseDisp(y)
 et <- exactTest(y,pair = c("groupA","groupB"))
 
 ordered_tags <- topTags(et, n=100000)
-allDiff=ordered_tags$table
-allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
-diff=allDiff
+allDiff <- ordered_tags$table
+allDiff <- allDiff[is.na(allDiff$FDR)==FALSE,]
+diff <- allDiff
 
-diffSig_g2_siNC_siTP53BP2_1h = diff[(diff$FDR < padj & (diff$logFC>foldChange | 
-                                                       diff$logFC<(-foldChange))),]
+diff_g2_siNC_siTP53BP2_1h <- diff[,c(1,3,4)]
+
+diff_g2_siNC_siTP53BP2_1h[,4] <- rownames(diff_g2_siNC_siTP53BP2_1h)
+
+
+
+diffsig_g2_siNC_siTP53BP2_1h <- diff[(diff$FDR < padj & (diff$logFC>foldChange | 
+                                                           diff$logFC<(-foldChange))),]
+
+write.csv(diffsig_g2_siNC_siTP53BP2_1h,"diffsig_g2_siNC_siTP53BP2_1h.csv")
 													   
 ##Heatmap for Type I interferon pathway genes
 
 newData=y$pseudo.counts
 
-Type_I_interferon_pathway_genes <- read.table("Type_I_interferon_pathway_genes.txt",header = F, sep = "\t")
+Type_I_interferon_pathway_genes <- c(read.table("Type_I_interferon_pathway_genes.txt",header = F, sep = "\t")[,1])
 
 df <- newData[Type_I_interferon_pathway_genes,]
 
@@ -103,37 +117,11 @@ heatmap(df[rev(rownames(df)),],
         ColSideColors = patient_class)
 dev.off()													   
 													   
-													   
-													   
-#HepG2 siNC_siTP53BP2_2h
-rt <- all[,c(7,8,9,16,17,18)]
-
-
-rt=as.matrix(rt)
-exp=rt
-dimnames=list(rownames(exp),colnames(exp))
-data=matrix(as.numeric(as.matrix(exp)),nrow=nrow(exp),dimnames=dimnames)
-
-data=avereps(data)
-data=data[rowMeans(data)>1,]
-
-y <- DGEList(counts=data,group=group)
-y <- calcNormFactors(y)
-y <- estimateCommonDisp(y)
-y <- estimateTagwiseDisp(y)
-
-et <- exactTest(y,pair = c("groupA","groupB"))
-
-ordered_tags <- topTags(et, n=100000)
-allDiff=ordered_tags$table
-allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
-diff=allDiff
-
-diffSig_g2_siNC_siTP53BP2_2h = diff[(diff$FDR < padj & (diff$logFC>foldChange | 
-                                                          diff$logFC<(-foldChange))),]
+diffsig_Type_I_interferon_pathway_genes <- diffsig_g2_siNC_siTP53BP2_1h[Type_I_interferon_pathway_genes,]								   
+write.csv(diffsig_Type_I_interferon_pathway_genes,"diffsig_Type_I_interferon_pathway_genes.csv")
 
 #HepAD38
-rt <- read.table("symbol.protein_coding.hepad38.csv",
+rt <- read.table("symbol.protein_coding.hepad38.txt",
                  sep="\t",header=T,check.names=F)
 
 rt <-aggregate(rt[,-1],by=list(rt[,1]),FUN=mean)
@@ -165,6 +153,10 @@ allDiff=ordered_tags$table
 allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
 diff=allDiff
 
+diff_ad38_siNC_siTP53BP2 <- diff[,c(1,3,4)]
+
+diff_ad38_siNC_siTP53BP2[,4] <- rownames(diff_ad38_siNC_siTP53BP2)
+
 diffSig_ad38_siNC_siTP53BP2 = diff[(diff$FDR < padj & (diff$logFC>foldChange | 
                                                           diff$logFC<(-foldChange))),]
 #Volcano plot (Sup fig3A)
@@ -186,9 +178,21 @@ dev.off()
 
 rt <- read.table("lm3_edgerOut.tsv",
                  sep="\t",header=T,check.names=F)
-rt <- rt[which(rt$logFC>1 | rt$logFC<c(-1)),]
 
-rt <- rt[which(rt$P.Value<=0.05),]
+diff_lm3_siNC_siTP53BP2 <- rt[,c(1,2,5,6)]
+
+rownames(diff_lm3_siNC_siTP53BP2) <- diff_lm3_siNC_siTP53BP2[,1]
+
+diff_lm3_siNC_siTP53BP2 <- diff_lm3_siNC_siTP53BP2[,-1]
+
+colnames(diff_lm3_siNC_siTP53BP2)[2] <- "PValue"
+
+diff_lm3_siNC_siTP53BP2[,4] <- rownames(diff_lm3_siNC_siTP53BP2)
+
+rt <- rt[which(rt$logFC>=foldChange | rt$logFC<(-foldChange)),]
+
+rt <- rt[which(rt$FDR<=padj),]
+
 
 diffSig_lm3_siNC_siTP53BP2 <- rt[,-1]
 rownames(diffSig_lm3_siNC_siTP53BP2) <- rt[,1]
@@ -198,7 +202,7 @@ all_lm3 <- read.table("lm3.normalized.csv",
 rownames(all_lm3) <- all_lm3[,1] 
 all_lm3 <- all_lm3[,-1]
 
---------------------------------------------------------------------------------
+
 ###venn plot
 
 gene_logFC <- function(diff,foldChange,TP53BP2_DOWN){
@@ -218,8 +222,6 @@ HepAD38 <- gene_logFC(diffSig_ad38_siNC_siTP53BP2,foldChange) %>% setdiff(.,y="T
 
 LM3 <- gene_logFC(diffSig_lm3_siNC_siTP53BP2,foldChange) %>% setdiff(.,y="TP53BP2_DOWN")
 
-HepG2_2h <- gene_logFC(diffSig_g2_siNC_siTP53BP2_2h,foldChange) %>% setdiff(.,y="TP53BP2_DOWN")
-
 
 
 
@@ -227,8 +229,7 @@ mydata <- list(
   HepG2_1h=HepG2_1h, 
   HepG2_0h=HepG2_0h,  
   HepAD38=HepAD38,
-  LM3=LM3, 
-  HepG2_2h=HepG2_2h
+  LM3=LM3 
 )
 
 
@@ -237,10 +238,10 @@ mydata <- list(
 venn.plot <- venn.diagram(
   mydata,
   filename = NULL,
-  fill = c("#0073C2FF","#E69F00","#009E73","#CD534CFF","#EF534CFF"),
+  fill = c("#0073C2FF","#E69F00","#009E73","#CD534CFF"),
   alpha = 0.30,
   lwd = 1,
-  cat.col = c("steelblue", "orange", "darkgreen", "tomato", "tomato"),
+  cat.col = c("steelblue", "orange", "darkgreen", "tomato"),
   cat.cex = 1,
   cat.fontface = "bold",
   cat.pos = 0,
@@ -255,18 +256,15 @@ pdf(file="venn.pdf")
 grid.draw(venn.plot)
 dev.off()
 
---------------------------------------------------------------------------------
 ###heatmap for intersect different expression genes
 
 
 merge_gene <- intersect(
-  intersect(
     intersect(HepG2_1h,HepG2_0h),
-    intersect(HepAD38,HepG2_2h)),
-  LM3)
+    intersect(HepAD38,LM3))
 
 
-merge_gene2 <- c("SOCS2","ASB4","KCND3","PALMD","SLC51B","TJP3")
+merge_gene2 <- c("SOCS2","GLIPR1","TJP3")
 
 #Build expression lists
 
@@ -310,9 +308,9 @@ lm3_siNC_siTP53BP2 <- all_lm3[merge_gene2,]
 #g2_heatmap
 df <- as.matrix(g2) 
 col <- colorRampPalette(c("#16499D", "#FBFCFE", "#E72119"))(256)
-annotation_col<-data.frame(siTP53BP2=factor(c(rep("siControl",9),rep("siTP53BP2",9))),
-                           IFN=factor(c(rep("Control",3),rep("INF-Î± 1h",3),rep("INF-Î± 2h",3),
-                                        rep("Control",3),rep("INF-Î± 1h",3),rep("INF-Î± 2h",3)))
+annotation_col<-data.frame(siTP53BP2=factor(c(rep("siControl",6),rep("siTP53BP2",6))),
+                           IFN=factor(c(rep("Control",3),rep("INF-¦Á",3),
+                                        rep("Control",3),rep("INF-¦Á",3)))
                            )
 rownames(annotation_col)<-colnames(df)
 
@@ -371,3 +369,53 @@ grid.arrange(arrangeGrob(g2_heatmap[[4]]),
              arrangeGrob(ad38_heatmap[[4]],lm3_heatmap[[4]], ncol=2),
              ncol=1)
 dev.off()
+
+
+#merge Volcano
+
+changeName <- function(data,name){
+  rownames(data) <- paste0(rownames(data),"_",name)
+  return(data)
+  }
+
+
+diff_ad38_siNC_siTP53BP2[,5] <- "HepAD38"
+diff_g2_siNC_siTP53BP2[,5] <- "HepG2"
+diff_g2_siNC_siTP53BP2_1h[,5] <- "HepG2-IFN"
+
+diff_ad38_siNC_siTP53BP2 <- changeName(diff_ad38_siNC_siTP53BP2,"HepAD38")
+diff_g2_siNC_siTP53BP2 <- changeName(diff_g2_siNC_siTP53BP2,"HepG2")
+diff_g2_siNC_siTP53BP2_1h <- changeName(diff_g2_siNC_siTP53BP2_1h,"HepG2-IFN")
+
+
+
+merge.diff <- rbind(diff_ad38_siNC_siTP53BP2,
+                    diff_g2_siNC_siTP53BP2,
+                    diff_g2_siNC_siTP53BP2_1h)
+
+merge.diff[,6] <- "Stable"
+merge.diff[which(merge.diff$logFC > foldChange & merge.diff$FDR < padj),6] <- "Up"
+merge.diff[which(merge.diff$logFC < (-foldChange) & merge.diff$FDR < padj),6] <- "Down"
+
+
+colnames(merge.diff)[c(4,5,6)] <- c("geneids","contrast","change")
+
+my_genes <- Type_I_interferon_pathway_genes
+
+ggplot(filter(merge.diff,!geneids %in% my_genes)) +
+  geom_point(aes(contrast, logFC,color = change, size = -log10(FDR), alpha = -log10(FDR)),
+             position = "jitter")+
+  geom_point(data = filter(merge.diff,geneids %in% my_genes),
+             aes(contrast, logFC), 
+             position = "jitter",
+             size = 4,
+             shape = 21,
+             color = "black",
+             fill = "#fee08b")+
+  geom_hline(yintercept = c(-foldChange, foldChange), 
+             linetype = 'dotdash',
+             color = 'grey30')+
+  scale_color_manual(values = c(Up = "#e6550d", Down = "#3182bd",Stable="#636363")) +
+  scale_alpha(range = c(0.3, 1)) +
+  labs(x = 'Group', y = 'Log2(fold change)') +
+  theme_bw()
