@@ -2,25 +2,21 @@ library(magrittr)
 
 library(dplyr)
 
+library(ggplot2)
+
 library(clusterProfiler)
 
 library(org.Hs.eg.db)
 
 library("ggrepel")
 
-gtex=read.table("Liver.allpairs.txt.hg38.prepaired.txt.0.0001.txt",sep=" ",header=T)
+gtex=read.table("eQTL_GWAS_protein_coding.txt",sep="\t",header=T)
 
-id_split <- gtex$variant_id %>% strsplit(split="_") %>% data.frame() %>% t() %>% as.data.frame()
+id_split <- gtex$variant_id |> strsplit(split="_") |> data.frame() |> t() |> as.data.frame()
 
-gtex$hg38id <- paste(gtex[,1],id_split[,3],id_split[,4],sep = "_")
+gtex$hg38id <- paste(gtex[,2],id_split[,3],id_split[,4],sep = "_")
 
-proteincoding <- read.table("protein_coding.csv",sep="\t",header=T)
-
-gtex$gene_id_1 <-  substr(gtex[,2],1,15)
-
-gtex <- merge(gtex,proteincoding,by.x = "gene_id_1",by.y = "Gene.stable.ID")
-
-gwas_0.0001 <- read.table("results_as_0.0001.txt",header = T, sep = "\t")
+gwas_0.0001 <- read.table("assoc_results.assoc.fisher0.0001.txt",header = T, sep = "\t")
 
 gwas_0.0001$hg38id <- paste("chr",gwas_0.0001[,1],":",gwas_0.0001[,3],"_",gwas_0.0001[,7],"_",gwas_0.0001[,4],sep="")
 
@@ -32,9 +28,9 @@ TP53BP2 <- gwas_eQTL_merge[which(gwas_eQTL_merge$Gene.name=="TP53BP2"),]
 
 
 
-gwas_eQTL_merge <- gwas_eQTL_merge %>% mutate(abs_clour=case_when(slope > 0 ~ "red",TRUE ~ "blue"))
+gwas_eQTL_merge <- gwas_eQTL_merge |> mutate(abs_clour=case_when(slope > 0 ~ "red",TRUE ~ "blue"))
 
-gwas_eQTL_merge <- gwas_eQTL_merge %>% mutate(highlight=case_when(abs(slope) > 0.15 ~ paste(SNP,":",Gene.name,sep=""),TRUE ~ ""))
+gwas_eQTL_merge <- gwas_eQTL_merge |> mutate(highlight=case_when(abs(slope) > 0.15 ~ paste(SNP,":",Gene.name,sep=""),TRUE ~ ""))
 
 write.table(gwas_eQTL_merge,"gwas_eQTL_merge.txt",row.names = F,quote = F)
 

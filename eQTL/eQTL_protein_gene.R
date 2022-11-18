@@ -1,4 +1,15 @@
-eQTL_GWAS <- read.table("Liver.allpairs.txt.hg38.prepaired.txt.0.0001.txt",header = T,sep = " ")
+eQTL_GWAS <- read.table("Liver.allpairs.txt.hg38.prepaired.txt.0.0001.txt",header = F,sep = " ")
+
+colnames(eQTL_GWAS) <- c("chr:pos",
+                         "gene_id",
+                         "variant_id",
+                         "tss_distance",
+                         "ma_samples",
+                         "ma_count",
+                         "maf",
+                         "pval_nominal",
+                         "slope",
+                         "slope_se")
 
 eQTL_GWAS$gene <- substr(eQTL_GWAS$gene_id,1,15)
 

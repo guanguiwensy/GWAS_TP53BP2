@@ -174,5 +174,3 @@ plink --bfile 100_HBsAg_GWAS_12 --covar covar_mds.txt --logistic --hide-covar --
 awk '!/'NA'/' logistic_results.assoc.logistic > logistic_results.assoc_2.logistic
 
 sort -g -k 9 logistic_results.assoc_2.logistic >> logistic_results.assoc_2.logistic.sort
-
-plink --annotate assoc_results.assoc.fisher ranges=glist-hg38  distance --border 1000
